@@ -136,13 +136,16 @@ int main()
     
     // build and compile our shader program
     // ------------------------------------
-    char* headDir = "/Users/haoxiangliang/Desktop/代码草稿/OpenGL/OpenGL_Test9_MutiLight/OpenGL_Test9_MutiLight/";
+    char* headDir = "/Users/haoxiangliang/Desktop/代码草稿/OpenGL/OpenGL_Test11_StencilTest/OpenGL_Test11_StencilTest/";
     string p1 = string(headDir) + "LightShader/LightVertexShader.cpp";
     string p2 = string(headDir) + "LightShader/LightFragmentShader.cpp";
     Shader lightingShader(p1.c_str(), p2.c_str());
     string p3 = string(headDir) + "LampShader/LampVertexShader.cpp";
     string p4 = string(headDir) + "LampShader/LampFragmentShader.cpp";
     Shader lightCubeShader(p3.c_str(), p4.c_str());
+    string p5 = string(headDir) + "SingleShader/SingleVertexShader.cpp";
+    string p6 = string(headDir) + "SingleShader/SingleFragmentShader.cpp";
+    Shader shaderSingleColor(p5.c_str(), p6.c_str());
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     
@@ -178,6 +181,10 @@ int main()
     glfwSetScrollCallback(window, scroll_callback);
     
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);//运行时隐藏鼠标光标
     lightingShader.use();
     lightingShader.setInt("material.diffuse", 0);
@@ -195,7 +202,10 @@ int main()
         // render
         // ------
         glClearColor(182.0f / 255.0f, 135.0f / 255.0f, 86.0f / 255.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
         lightingShader.setVec3("viewPos", camera.Position);
@@ -281,27 +291,65 @@ int main()
             mat4 model = mat4(1.0f);
             model = translate(model, cubePositions[i]);
             float angle = 20.0f * i;
-            model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
+            if (i % 3 == 0)
+            {
+                model = rotate(model, (float)glfwGetTime() * radians(5.0f*i+10.0f), vec3(1.0f, 0.3f, 0.5f));
+            }
+            else
+            {
+                model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
+            }
             lightingShader.setMat4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-         // also draw the lamp object(s)
-         lightCubeShader.use();
-         lightCubeShader.setMat4("projection", projection);
-         lightCubeShader.setMat4("view", view);
+        // also draw the lamp object(s)
+        lightCubeShader.use();
+        lightCubeShader.setMat4("projection", projection);
+        lightCubeShader.setMat4("view", view);
     
-         // we now draw as many light bulbs as we have point lights.
-         glBindVertexArray(lightCubeVAO);
-         for (unsigned int i = 0; i < 4; i++)
-         {
-             model = mat4(1.0f);
-             model = translate(model, pointLightPositions[i]);
-             model = scale(model, vec3(0.2f)); // Make it a smaller cube
-             lightCubeShader.setMat4("model", model);
-             glDrawArrays(GL_TRIANGLES, 0, 36);
-         }
+        // we now draw as many light bulbs as we have point lights.
+        glBindVertexArray(lightCubeVAO);
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            model = mat4(1.0f);
+            model = translate(model, pointLightPositions[i]);
+            model = scale(model, vec3(0.2f)); // Make it a smaller cube
+            lightCubeShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        
+        //模版测试
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        shaderSingleColor.use();
+        float s = 1.05;
+        glBindVertexArray(cubeVAO);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            // calculate the model matrix for each object and pass it to shader before drawing
+            mat4 model = mat4(1.0f);
+            model = translate(model, cubePositions[i]);
+            model = scale(model, vec3(s, s, s));
+            float angle = 20.0f * i;
+            if (i % 3 == 0)
+            {
+                model = rotate(model, (float)glfwGetTime() * radians(5.0f*i+10.0f), vec3(1.0f, 0.3f, 0.5f));
+            }
+            else
+            {
+                model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
+            }
+            shaderSingleColor.setMat4("model", model);
+            shaderSingleColor.setMat4("projection", projection);
+            shaderSingleColor.setMat4("view", view);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 0, 0xFF);
+        glEnable(GL_DEPTH_TEST);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

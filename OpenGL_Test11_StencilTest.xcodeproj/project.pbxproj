@@ -27,6 +27,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AB62241226AFEB5A00767D53 /* SingleFragmentShader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SingleFragmentShader.cpp; sourceTree = "<group>"; };
+		AB62241326AFF3A500767D53 /* SingleVertexShader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SingleVertexShader.cpp; sourceTree = "<group>"; };
 		ABBA021326AFE7C500C3F686 /* OpenGL_Test11_StencilTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenGL_Test11_StencilTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABBA021626AFE7C500C3F686 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		ABBA021E26AFE83600C3F686 /* libGLEW.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.dylib; path = ../../../glew/2.2.0_1/lib/libGLEW.dylib; sourceTree = "<group>"; };
@@ -55,6 +57,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AB62241126AFEB5900767D53 /* SingleShader */ = {
+			isa = PBXGroup;
+			children = (
+				AB62241326AFF3A500767D53 /* SingleVertexShader.cpp */,
+				AB62241226AFEB5A00767D53 /* SingleFragmentShader.cpp */,
+			);
+			path = SingleShader;
+			sourceTree = "<group>";
+		};
 		ABBA020A26AFE7C500C3F686 = {
 			isa = PBXGroup;
 			children = (
@@ -75,6 +86,7 @@
 		ABBA021526AFE7C500C3F686 /* OpenGL_Test11_StencilTest */ = {
 			isa = PBXGroup;
 			children = (
+				AB62241126AFEB5900767D53 /* SingleShader */,
 				ABBA022926AFE93C00C3F686 /* LampShader */,
 				ABBA022C26AFE93C00C3F686 /* LightShader */,
 				ABBA022526AFE93000C3F686 /* Camera.cpp */,
